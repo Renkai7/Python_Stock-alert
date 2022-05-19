@@ -1,13 +1,30 @@
+import os
+import requests
+
 STOCK_NAME = "TSLA"
 COMPANY_NAME = "Tesla Inc"
 
 STOCK_ENDPOINT = "https://www.alphavantage.co/query"
 NEWS_ENDPOINT = "https://newsapi.org/v2/everything"
 
-    ## STEP 1: Use https://www.alphavantage.co/documentation/#daily
-# When stock price increase/decreases by 5% between yesterday and the day before yesterday then print("Get News").
+api_key = os.environ.get("AV_API_KEY")
+API_URL = "https://www.alphavantage.co/query?"
 
-#TODO 1. - Get yesterday's closing stock price. Hint: You can perform list comprehensions on Python dictionaries. e.g. [new_value for (key, value) in dictionary.items()]
+stock_params = {
+    "function": "TIME_SERIES_DAILY",
+    "symbol": STOCK_NAME,
+    "apikey": api_key
+}
+
+response = requests.get(API_URL, params=stock_params)
+response.raise_for_status()
+stock_data = response.json()["Time Series (Daily)"]
+
+
+stock_list = [value for (key, value) in stock_data.items()]
+yesterday_data = stock_list[0]
+yesterday_closing_price = yesterday_data["4. close"]
+print(yesterday_closing_price)
 
 #TODO 2. - Get the day before yesterday's closing stock price
 
