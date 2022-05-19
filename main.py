@@ -7,33 +7,43 @@ COMPANY_NAME = "Tesla Inc"
 STOCK_ENDPOINT = "https://www.alphavantage.co/query"
 NEWS_ENDPOINT = "https://newsapi.org/v2/everything"
 
-api_key = os.environ.get("AV_API_KEY")
-API_URL = "https://www.alphavantage.co/query?"
+stock_api_key = os.environ.get("AV_API_KEY")
+news_api_key = os.environ.get("NEWS_API_KEY")
 
 stock_params = {
     "function": "TIME_SERIES_DAILY",
     "symbol": STOCK_NAME,
-    "apikey": api_key
+    "apikey": stock_api_key
 }
 
-response = requests.get(API_URL, params=stock_params)
-response.raise_for_status()
-stock_data = response.json()["Time Series (Daily)"]
+news_params = {
+    "q": COMPANY_NAME,
+    "apikey": news_api_key
+}
+
+
+stock_response = requests.get(STOCK_ENDPOINT, params=stock_params)
+stock_response.raise_for_status()
+stock_data = stock_response.json()["Time Series (Daily)"]
+
+news_response = requests.get(NEWS_ENDPOINT, params=news_params)
+news_response.raise_for_status()
 
 
 stock_list = [value for (key, value) in stock_data.items()]
 yesterday_data = stock_list[0]
 yesterday_closing_price = yesterday_data["4. close"]
-print(yesterday_closing_price)
 
-#TODO 2. - Get the day before yesterday's closing stock price
 
-#TODO 3. - Find the positive difference between 1 and 2. e.g. 40 - 20 = -20, but the positive difference is 20. Hint: https://www.w3schools.com/python/ref_func_abs.asp
+day_before_yesterday_data = stock_list[1]
+day_before_yesterday_closing_price = day_before_yesterday_data["4. close"]
 
-#TODO 4. - Work out the percentage difference in price between closing price yesterday and closing price the day before yesterday.
+difference = abs(float(yesterday_closing_price) - float(day_before_yesterday_closing_price))
 
-#TODO 5. - If TODO4 percentage is greater than 5 then print("Get News").
+diff_percent = (difference / float(yesterday_closing_price)) * 100
 
+if diff_percent > .01:
+    print("Get News")
     ## STEP 2: https://newsapi.org/ 
     # Instead of printing ("Get News"), actually get the first 3 news pieces for the COMPANY_NAME. 
 
